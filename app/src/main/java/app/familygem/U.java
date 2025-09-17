@@ -208,25 +208,34 @@ public class U {
             String value = name.getValue().trim();
             int slashPos = value.indexOf('/');
             int lastSlashPos = value.lastIndexOf('/');
-            if (slashPos > -1) // If there is a surname between two "/"
-                full = value.substring(0, slashPos).trim(); // Given name
-            else // Or it's only a given name without surname
+            if (slashPos > -1) { // If there is a surname between two "/"
+                // Display surname first (Vietnamese style: Họ Tên)
+                if (slashPos < lastSlashPos)
+                    full = value.substring(slashPos + 1, lastSlashPos).trim(); // Surname first
+                if (!full.isEmpty())
+                    full += divider + value.substring(0, slashPos).trim(); // Given name after
+                else
+                    full = value.substring(0, slashPos).trim(); // Only given name if no surname
+            } else // Or it's only a given name without surname
                 full = value;
             if (name.getNickname() != null)
                 full += divider + "\"" + name.getNickname() + "\"";
-            if (slashPos < lastSlashPos)
-                full += divider + value.substring(slashPos + 1, lastSlashPos).trim(); // Surname
             if (lastSlashPos > -1 && value.length() - 1 > lastSlashPos)
                 full += " " + value.substring(lastSlashPos + 1).trim(); // After the surname
-        } else { // Full name from Name pieces
+        } else { // Full name from Name pieces - Vietnamese style: Họ Tên
             if (name.getPrefix() != null)
                 full = name.getPrefix();
-            if (name.getGiven() != null)
-                full += " " + name.getGiven();
+            // Display surname first, then given name (Vietnamese style)
+            if (name.getSurname() != null) {
+                if (!full.isEmpty()) full += " ";
+                full += name.getSurname();
+            }
+            if (name.getGiven() != null) {
+                if (!full.isEmpty()) full += divider;
+                full += name.getGiven();
+            }
             if (name.getNickname() != null)
                 full += divider + "\"" + name.getNickname() + "\"";
-            if (name.getSurname() != null)
-                full += divider + name.getSurname();
             if (name.getSuffix() != null)
                 full += " " + name.getSuffix();
         }
